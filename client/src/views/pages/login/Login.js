@@ -56,6 +56,7 @@ const Login = () => {
           name: res.data.info.user.name,
           id: res.data.info.user._id,
           email: res.data.info.user.email,
+          role: res.data.info.user.role.name,
           img: res.data.info.user.image ? res.data.baseUrl + res.data.info.user.image : null,
         }
 
@@ -64,7 +65,7 @@ const Login = () => {
         setIsLoading(false)
         dispatch({
           type: LOGIN_SUCCESS,
-          data,
+          data: userObject,
         })
         // navigate('/dashboard')
       }
@@ -73,7 +74,7 @@ const Login = () => {
         setError(err.response.data.message)
         setIsLoading(false)
       } else {
-        setError('Something is wrong!')
+        setError(err.response.data.message)
         setIsLoading(false)
       }
     }
@@ -83,7 +84,7 @@ const Login = () => {
       <CContainer>
         <ToastContainer />
         <CRow className="justify-content-center">
-          <CCol md={8}>
+          <CCol md={5}>
             <CCardGroup>
               <CCard className="p-4 col-md-7">
                 <CCardBody>
@@ -135,19 +136,6 @@ const Login = () => {
                       </CCol>
                     </CRow>
                   </CForm>
-                </CCardBody>
-              </CCard>
-              <CCard className="text-white col-md-5 bg-primary py-5">
-                <CCardBody className="text-center">
-                  <div>
-                    <h2>Sign up</h2>
-
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        Register Now!
-                      </CButton>
-                    </Link>
-                  </div>
                 </CCardBody>
               </CCard>
             </CCardGroup>

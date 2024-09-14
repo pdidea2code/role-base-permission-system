@@ -6,7 +6,9 @@ const RoleSchema = new mongoose.Schema(
       type: String,
       enum: ["user", "admin", "superadmin"],
       required: true,
+      unique: true,
     },
+
     insert: {
       type: Boolean,
       defaultL: false,

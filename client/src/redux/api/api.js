@@ -2,6 +2,9 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 import {
   CHANGE_PASSWORD_API,
+  CHANGE_PERMISSION,
+  GET_ALL_ROLE,
+  GET_USER,
   // ADD_CATEGORY_API,
   // ADD_DIET_API,
   // ADD_RECIPE_API,
@@ -87,6 +90,7 @@ import {
   // GET_USER_COUNT_API,
   LOGIN_API,
   MAIN_URL,
+  REGISTER_API,
   SEND_OTP_API,
   VERIFY_OTP_API,
 } from '../../constant'
@@ -104,7 +108,6 @@ axios.interceptors.response.use(
       // window.location.reload()
       try {
         const refreshToken = Cookies.get('refreshToken')
-        console.log(refreshToken)
 
         const res = await axios.post(`${MAIN_URL}/admin/refreshtoken`, { refreshToken })
 
@@ -699,4 +702,20 @@ export const sendOtp = (data) => axios.post(MAIN_URL + SEND_OTP_API, data)
 export const verifyOtp = (data) => axios.post(MAIN_URL + VERIFY_OTP_API, data)
 
 export const changePassword = (data) => axios.post(MAIN_URL + CHANGE_PASSWORD_API, data)
+
+export const registerUser = (data) => axios.post(MAIN_URL + REGISTER_API, data)
 /* ------------------------------ End Auth API ----------------------------- */
+export const getallRole = async () =>
+  await axios.get(MAIN_URL + GET_ALL_ROLE, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
+
+export const changepermission = async (data) =>
+  await axios.post(MAIN_URL + CHANGE_PERMISSION, data, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
+  
+export const getUser = async () =>
+  await axios.get(MAIN_URL + GET_USER, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })

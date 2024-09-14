@@ -8,19 +8,21 @@ module.exports = async function (req, res, next) {
   if (token) {
     token = req.header("Authorization").replace("Bearer ", "");
   }
-  if (!token) return queryErrorRelatedResponse(req, res, 402, "Access Denied.");
+
+  if (!token) return queryErrorRelatedResponse(res, 402, "Access Denied.");
   try {
     const verified = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     let user = await User.findOne({ _id: verified._id });
+
     if (!user) {
-      return queryErrorRelatedResponse(req, res, 402, "Access Denied.");
+      return queryErrorRelatedResponse(res, 402, "Access Denied.");
     }
 
     req.user = user;
     req.token = token;
     next();
   } catch (error) {
-    queryErrorRelatedResponse(req, res, 402, "Invalid Token.");
+    queryErrorRelatedResponse(res, 402, "Invalid Token.");
   }
 };

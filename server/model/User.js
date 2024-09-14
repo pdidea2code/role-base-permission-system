@@ -9,11 +9,11 @@ const UserSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: [true, "Email is required"], // Ensure email is always provided
-      unique: true, // Ensure unique email
-      lowercase: true, // Convert email to lowercase for consistency
-      trim: true, // Trim spaces
-      match: [/.+@.+\..+/, "Please enter a valid email"], // Email validation regex
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/.+@.+\..+/, "Please enter a valid email"],
     },
     password: {
       type: String,
@@ -32,6 +32,10 @@ const UserSchema = new mongoose.Schema(
       required: true,
     },
     otp: {
+      type: String,
+      default: null,
+    },
+    resetCode: {
       type: String,
       default: null,
     },

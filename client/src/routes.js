@@ -1,6 +1,9 @@
+import Cookies from 'js-cookie'
 import React from 'react'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
+const Permission = React.lazy(() => import('./views/pages/Permission'))
+
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
@@ -50,9 +53,11 @@ const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 
 const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
+const userdetail = JSON.parse(Cookies.get('admin'))
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
@@ -97,4 +102,7 @@ const routes = [
   { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
 
+if (userdetail.role === 'superadmin') {
+  routes.push({ path: '/permission', name: 'Permission', element: Permission })
+}
 export default routes

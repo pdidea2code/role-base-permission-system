@@ -20,8 +20,8 @@ const sendMail = (data) => {
     } else {
       var template = handlebars.compile(html);
       var replacements = {
+        resetLink: data.extraData.resetLink,
         OTP: data.extraData.OTP,
-        reset_link: data.extraData.reset_link,
         username: data.extraData.username,
         useremail: data.extraData.useremail,
         usermo: data.extraData.usermo,
