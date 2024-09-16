@@ -17,7 +17,7 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import { useForm } from 'react-hook-form'
-import { userLogin } from 'src/redux/api/api'
+import { getRole, userLogin } from 'src/redux/api/api'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Cookies from 'js-cookie'
@@ -52,6 +52,7 @@ const Login = () => {
         Cookies.set('token', res.data.info.token)
         Cookies.set('refreshToken', res.data.info.refreshToken)
 
+        console.log(res.data.info.user.role.name)
         const userObject = {
           name: res.data.info.user.name,
           id: res.data.info.user._id,
@@ -61,6 +62,24 @@ const Login = () => {
         }
 
         Cookies.set('admin', JSON.stringify(userObject))
+        const getrole = async () => {
+          try {
+            const role = await getRole()
+            const data = role.data.info
+            const cookie = {
+              _id: data._id,
+              name: data.name,
+              insert: data.insert,
+              update: data.update,
+              delete: data.delete,
+            }
+            Cookies.set('role', JSON.stringify(cookie))
+            return data
+          } catch (error) {
+            console.log(error)
+          }
+        }
+        getrole()
 
         setIsLoading(false)
         dispatch({

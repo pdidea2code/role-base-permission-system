@@ -35,6 +35,7 @@ const AppHeaderDropdown = () => {
     Cookies.remove('admin')
     Cookies.remove('token')
     Cookies.remove('refreshToken')
+    Cookies.remove('role')
     dispatch({
       type: LOGOUT,
     })

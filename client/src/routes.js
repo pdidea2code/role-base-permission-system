@@ -1,8 +1,10 @@
 import Cookies from 'js-cookie'
 import React from 'react'
+import { getRole } from './redux/api/api'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Permission = React.lazy(() => import('./views/pages/Permission'))
+const Userform = React.lazy(() => import('./views/dashboard/Userform'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -52,11 +54,27 @@ const Modals = React.lazy(() => import('./views/notifications/modals/Modals'))
 const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 
 const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
+// const getrole = async () => {
+//   try {
+//     const role = await getRole()
+//     const data = role.data.info
+//     const cookie = {
+//       _id: data._id,
+//       name: data.name,
+//       insert: data.insert,
+//       update: data.update,
+//       delete: data.delete,
+//     }
+//     return data
+//   } catch (error) {
+//     console.log(error)
+//   }
+// }
 
-const userdetail = JSON.parse(Cookies.get('admin'))
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+  { path: '/userform', name: 'User-Form', element: Userform },
 
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
@@ -101,8 +119,11 @@ const routes = [
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
   { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
+const userdetail = JSON.parse(Cookies.get('admin'))
 
-if (userdetail.role === 'superadmin') {
+// const role = JSON.parse(Cookies.get('role'))
+// role.insert && routes.push({ path: '/userform', name: 'User-Form', element: Userform })
+userdetail.name === 'superadmin' &&
   routes.push({ path: '/permission', name: 'Permission', element: Permission })
-}
+
 export default routes

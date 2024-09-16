@@ -11,6 +11,10 @@ export const REGISTER_API = '/signup'
 
 export const GET_ALL_ROLE = '/role/getAllRole'
 export const CHANGE_PERMISSION = '/role/changePermission'
+export const GET_ROLE = '/role/getRolle'
 
 /* ---------------------------- END Permission API ---------------------------- */
 export const GET_USER = '/user/getUser'
+export const ADD_USER = '/user/addUser'
+export const DELETE_USER = '/user/deleteUser'
+export const UPDATE_USER = '/user/updateUser'

@@ -22,6 +22,6 @@ router.post("/refreshToken", RefreshToken);
 router.post("/checkEmailId", checkEmailId);
 router.post("/verifyOtp", verifyOtp);
 router.post("/changePassword", changePassword);
-router.post("/resetPassword", verifyAppToken, resetPassword);
+router.post("/resetPassword", resetPassword);
 
 module.exports = router;

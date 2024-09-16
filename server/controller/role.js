@@ -55,4 +55,14 @@ const changePermission = async (req, res, next) => {
   }
 };
 
-module.exports = { addRole, changePermission, getAllRole };
+const getRolle = async (req, res, next) => {
+  try {
+    const role = await Role.findOne({ _id: req.user.role });
+    if (!role) return queryErrorRelatedResponse(res, 400, "Invalid Role");
+
+    successResponse(res, role);
+  } catch (error) {
+    next(error);
+  }
+};
+module.exports = { addRole, changePermission, getAllRole, getRolle };

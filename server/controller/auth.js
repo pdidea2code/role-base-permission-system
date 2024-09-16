@@ -67,12 +67,13 @@ const RefreshToken = async (req, res, next) => {
   if (!refreshToken) {
     return res.status(401).json({ success: false, message: "Access Denied. No refresh token provided." });
   }
+
   try {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
     const user = await User.findOne({ email: decoded.email });
     if (!user) {
-      return queryErrorRelatedResponse(req, res, 401, "Invalid User!");
+      return queryErrorRelatedResponse(res, 401, "Invalid User!");
     }
 
     const accessToken = user.generateAuthToken({ email: user.email });

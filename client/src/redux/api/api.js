@@ -1,9 +1,12 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import {
+  ADD_USER,
   CHANGE_PASSWORD_API,
   CHANGE_PERMISSION,
+  DELETE_USER,
   GET_ALL_ROLE,
+  GET_ROLE,
   GET_USER,
   // ADD_CATEGORY_API,
   // ADD_DIET_API,
@@ -92,6 +95,7 @@ import {
   MAIN_URL,
   REGISTER_API,
   SEND_OTP_API,
+  UPDATE_USER,
   VERIFY_OTP_API,
 } from '../../constant'
 // export const MAIN_url = 'http://localhost:8002'
@@ -102,14 +106,14 @@ axios.interceptors.response.use(
     const originalRequest = err.config
     if (err.response.status === 402 && !originalRequest._retry) {
       originalRequest._retry = true
-      Cookies.remove('accessToken')
+      // Cookies.remove('accessToken')
       // Cookies.remove('refreshToken')
       // Cookies.remove('admin')
       // window.location.reload()
       try {
         const refreshToken = Cookies.get('refreshToken')
 
-        const res = await axios.post(`${MAIN_URL}/admin/refreshtoken`, { refreshToken })
+        const res = await axios.post(`${MAIN_URL}/refreshToken`, { refreshToken })
 
         const accessToken = res.data.info
 
@@ -705,8 +709,13 @@ export const changePassword = (data) => axios.post(MAIN_URL + CHANGE_PASSWORD_AP
 
 export const registerUser = (data) => axios.post(MAIN_URL + REGISTER_API, data)
 /* ------------------------------ End Auth API ----------------------------- */
+/* ------------------------------ ALL Role API ----------------------------- */
 export const getallRole = async () =>
   await axios.get(MAIN_URL + GET_ALL_ROLE, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
+export const getRole = async () =>
+  await axios.get(MAIN_URL + GET_ROLE, {
     headers: { Authorization: `Bearer ${Cookies.get('token')}` },
   })
 
@@ -714,8 +723,22 @@ export const changepermission = async (data) =>
   await axios.post(MAIN_URL + CHANGE_PERMISSION, data, {
     headers: { Authorization: `Bearer ${Cookies.get('token')}` },
   })
-  
+/* ------------------------------ End Role API ----------------------------- */
+/* ------------------------------ ALL User API ----------------------------- */
 export const getUser = async () =>
   await axios.get(MAIN_URL + GET_USER, {
     headers: { Authorization: `Bearer ${Cookies.get('token')}` },
   })
+export const addUser = async (data) =>
+  await axios.post(MAIN_URL + ADD_USER, data, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
+export const deleteUser = async (data) =>
+  await axios.post(MAIN_URL + DELETE_USER, data, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
+export const updateUser = async (data) =>
+  await axios.post(MAIN_URL + UPDATE_USER, data, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
+/* ------------------------------ End User API ----------------------------- */
