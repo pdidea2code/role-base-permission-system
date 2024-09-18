@@ -13,6 +13,7 @@ import {
   cilPuzzle,
   cilSpeedometer,
   cilStar,
+  cilUser,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 import Cookies from 'js-cookie'
@@ -35,12 +36,20 @@ const _nav = [
   // },
 ]
 if (userdetail.role === 'superadmin') {
-  _nav.push({
-    component: CNavItem,
-    name: 'Permission',
-    to: '/permission',
-    icon: <CIcon icon={cilActionRedo} customClassName="nav-icon" />,
-  })
+  _nav.push(
+    {
+      component: CNavItem,
+      name: 'Permission',
+      to: '/permission',
+      icon: <CIcon icon={cilActionRedo} customClassName="nav-icon" />,
+    },
+    {
+      component: CNavItem,
+      name: 'Admin',
+      to: '/admin',
+      icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+    },
+  )
 }
 
 export default _nav

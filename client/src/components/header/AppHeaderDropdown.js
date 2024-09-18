@@ -50,6 +50,10 @@ const AppHeaderDropdown = () => {
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-light fw-semibold py-2">Account</CDropdownHeader>
 
+        <CDropdownItem href="/changepassword">
+          <CIcon icon={cilLockLocked} className="me-2" />
+          Change Password
+        </CDropdownItem>
         <CDropdownItem onClick={logout}>
           <CIcon icon={cilLockLocked} className="me-2" />
           Lock Account

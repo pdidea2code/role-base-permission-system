@@ -78,6 +78,7 @@ const Userform = () => {
 
   useEffect(() => {
     setRole(state.role)
+
     if (state.editData) {
       setIsUpdate(state.editData._id)
       setValue('name', state.editData.name)
@@ -110,11 +111,14 @@ const Userform = () => {
     if (isUpdate) {
       formData.append('id', isUpdate)
     }
+    if (formData) {
+      formData.append('rolename', role)
+    }
 
     isUpdate === ''
       ? addUser(formData)
           .then((res) => {
-            navigate('/')
+            role === 'user' ? navigate('/') : navigate('/admin', { state: { role: role } })
           })
           .catch((error) => {
             console.log(error)
@@ -124,7 +128,7 @@ const Userform = () => {
           })
       : updateUser(formData)
           .then((res) => {
-            navigate('/')
+            role === 'user' ? navigate('/') : navigate('/admin', { state: { role: role } })
           })
           .catch((error) => {
             console.log(error)
@@ -133,7 +137,6 @@ const Userform = () => {
             toast.error(errorMsg)
           })
   }
-
   return (
     <>
       <div className="bg-light min-vh-100">
@@ -142,7 +145,7 @@ const Userform = () => {
           <CRow>
             <CCol md={8}>
               <CCard>
-                <CCardHeader>User Form</CCardHeader>
+                <CCardHeader>{isUpdate ? 'Update' : 'Add'} Form</CCardHeader>
                 <CCardBody>
                   <CForm className="row g-3 " onSubmit={handleSubmit(onSubmit)}>
                     <CCol xl={6} md={12}>

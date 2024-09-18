@@ -6,7 +6,8 @@ const { use } = require("../routes");
 
 const getUser = async (req, res, next) => {
   try {
-    const role = await Role.findOne({ name: "user" });
+    const role = await Role.findOne({ name: req.body.role });
+
     const user = await User.find({ role: role._id });
     if (!user) return queryErrorRelatedResponse(res, 404, "Not Found");
 
@@ -19,8 +20,8 @@ const getUser = async (req, res, next) => {
 
 const addUser = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
-    const role = await Role.findOne({ name: "user" });
+    const { name, email, password, rolename } = req.body;
+    const role = await Role.findOne({ name: rolename });
     const user = await User.create({
       name: name,
       email: email,

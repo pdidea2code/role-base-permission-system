@@ -1,10 +1,13 @@
 import Cookies from 'js-cookie'
 import React from 'react'
-import { getRole } from './redux/api/api'
+import { getallRole, getRole } from './redux/api/api'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Permission = React.lazy(() => import('./views/pages/Permission'))
 const Userform = React.lazy(() => import('./views/dashboard/Userform'))
+const Admin = React.lazy(() => import('./views/dashboard/Admin'))
+const Changepassword = React.lazy(() => import('./views/pages/login/Changepassword'))
+const Role = React.lazy(() => import('./views/pages/Roleform'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -70,11 +73,13 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 //     console.log(error)
 //   }
 // }
+const userdetail = JSON.parse(Cookies.get('admin'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/userform', name: 'User-Form', element: Userform },
+  { path: '/changepassword', name: 'Change-Password', element: Changepassword },
 
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
@@ -119,11 +124,16 @@ const routes = [
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
   { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
-const userdetail = JSON.parse(Cookies.get('admin'))
 
 // const role = JSON.parse(Cookies.get('role'))
 // role.insert && routes.push({ path: '/userform', name: 'User-Form', element: Userform })
-userdetail.name === 'superadmin' &&
-  routes.push({ path: '/permission', name: 'Permission', element: Permission })
+
+if (userdetail.role === 'superadmin') {
+  routes.push(
+    { path: '/permission', name: 'Permission', element: Permission },
+    { path: '/admin', name: 'Admin', element: Admin },
+    { path: '/roleform', name: 'Role - Form', element: Role },
+  )
+}
 
 export default routes

@@ -5,7 +5,7 @@ const verifyAppToken = require("../helper/verifyAppToken");
 const permissionManage = require("../helper/permissionManage");
 const { singleFileUpload } = require("../helper/fiileUpload");
 
-router.get("/getUser", verifyAppToken, getUser);
+router.post("/getUser", verifyAppToken, getUser);
 router.post(
   "/addUser",
   verifyAppToken,

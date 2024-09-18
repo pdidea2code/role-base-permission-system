@@ -1,5 +1,7 @@
+const deleteFile = require("../helper/deleteFile");
 const { successResponse, queryErrorRelatedResponse } = require("../helper/sendResponse");
 const Role = require("../model/Role");
+const User = require("../model/User");
 
 const addRole = async (req, res, next) => {
   try {
@@ -65,4 +67,38 @@ const getRolle = async (req, res, next) => {
     next(error);
   }
 };
-module.exports = { addRole, changePermission, getAllRole, getRolle };
+
+const deleteRole = async (req, res, next) => {
+  try {
+    const role = await Role.findById(req.body.id);
+    if (!role) return queryErrorRelatedResponse(res, 404, "Role Not Found");
+
+    const users = await User.find({ role: req.body.id });
+    const user = await Promise.all(
+      users.map(async (data) => {
+        if (data.image) {
+          deleteFile("profileimg/" + data.image);
+        }
+        await User.deleteOne(data._id);
+      })
+    );
+
+    await Role.deleteOne({ _id: req.body.id });
+    successResponse(res, "delete Successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateRole = async (req, res, next) => {
+  try {
+    const role = await Role.findById(req.body.id);
+    if (!role) return queryErrorRelatedResponse(res, "Role Not Found");
+
+    req.body.name ? (role.name = req.body.name) : role.name;
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { addRole, changePermission, getAllRole, getRolle, deleteRole, updateRole };

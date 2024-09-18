@@ -3,27 +3,48 @@ import MUIDataTable from 'mui-datatables'
 import { useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { deleteUser, getRole, getUser } from 'src/redux/api/api'
+import { deleteUser, getallRole, getRole, getUser } from 'src/redux/api/api'
 import * as Icons from '@mui/icons-material'
 import swal from 'sweetalert'
 import Cookies from 'js-cookie'
 import { CListGroup, CSpinner } from '@coreui/react'
 import { Button, IconButton } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-const Dashboard = () => {
+const Admin = () => {
+  const { state } = useLocation()
   const [dataTableData, setDataTabledata] = useState([])
   const [baseUrl, setBaseUrl] = useState('')
   const [insert, setInsert] = useState(false)
   const [update, setUpdate] = useState(false)
   const [deletes, setDeletes] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [roles, setRoles] = useState([])
+  const [role, setRole] = useState('admin')
   const navigate = useNavigate()
+
+  const getallrolle = async () => {
+    try {
+      const res = await getallRole()
+      setRoles(res.data.info)
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to fetch roles')
+    }
+  }
+
+  useEffect(() => {
+    getallrolle()
+    if (state) {
+      setRole(state.role)
+    }
+  }, [])
 
   const getuser = async () => {
     try {
       setIsLoading(true)
-      const data = { role: 'user' }
+      const data = {
+        role: role,
+      }
       const res = await getUser(data)
       setDataTabledata(res.data.info)
       setBaseUrl(res.data.baseUrl)
@@ -54,7 +75,7 @@ const Dashboard = () => {
       }
     }
     getrole()
-  }, [])
+  }, [role])
 
   const columns = [
     {
@@ -77,6 +98,9 @@ const Dashboard = () => {
       name: 'image',
       label: 'image',
       options: {
+        filter: false,
+        sort: false,
+
         customBodyRender: (image) =>
           image && (
             <img
@@ -94,6 +118,9 @@ const Dashboard = () => {
       name: '_id',
       label: 'action',
       options: {
+        filter: false,
+        sort: false,
+        search: false,
         customBodyRender: (value) => {
           return (
             <>
@@ -103,7 +130,7 @@ const Dashboard = () => {
                   onClick={() => {
                     const editData = dataTableData.find((data) => data._id === value)
                     navigate('/userform', {
-                      state: { role: 'user', editData: editData, imageUrl: baseUrl },
+                      state: { role: role, editData: editData, imageUrl: baseUrl },
                     })
                   }}
                 ></Icons.EditRounded>
@@ -115,7 +142,7 @@ const Dashboard = () => {
                   onClick={async () => {
                     const consfirm = await swal({
                       title: 'Are you sure?',
-                      text: 'Are you sure? Want to delete Category? All related data will also be deleted',
+                      text: 'Are you sure? Want to delete Admin?',
                       icon: 'warning',
                       buttons: ['No, cancel it!', 'Yes, I am sure!'],
                       dangerMode: true,
@@ -169,17 +196,47 @@ const Dashboard = () => {
                 variant="contained"
                 size="medium"
                 className="AddButton"
-                onClick={() => navigate('/userform', { state: { role: 'user' } })}
+                onClick={() => navigate('/userform', { state: { role: role } })}
               >
                 Add
               </Button>
             </div>
           )}
-          <MUIDataTable title={'user'} data={dataTableData} columns={columns} options={options} />
+          <div className="my-4">
+            {/* <Button
+              onClick={() => setRole('user')}
+              variant="contained"
+              size="medium"
+              className="AddButton me-2"
+            >
+              User
+            </Button>
+            <Button
+              onClick={() => setRole('admin')}
+              variant="contained"
+              size="medium"
+              className="AddButton me-2"
+            >
+              Admin
+            </Button> */}
+            {roles
+              /* .filter((data) => data.name !== 'superadmin') */
+              .map((data) => (
+                <Button
+                  onClick={() => setRole(data.name)}
+                  variant="contained"
+                  size="medium"
+                  className="AddButton me-2"
+                >
+                  {data.name}
+                </Button>
+              ))}
+          </div>
+          <MUIDataTable title={role} data={dataTableData} columns={columns} options={options} />
         </>
       )}
     </>
   )
 }
 
-export default Dashboard
+export default Admin

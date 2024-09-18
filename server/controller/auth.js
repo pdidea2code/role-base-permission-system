@@ -148,18 +148,19 @@ const changePassword = async (req, res, next) => {
 
 const resetPassword = async (req, res, next) => {
   try {
-    const { password, new_password, confirm_password } = req.body;
-    const user = await User.findById(req.user.id);
+    const { password, newPassword, confirmPassword } = req.body;
+
+    const user = await User.findById(req.user._id);
     if (!user) return queryErrorRelatedResponse(res, 401, "user Not Found");
 
     const verifyPassword = await user.comparePassword(password);
     if (!verifyPassword) return queryErrorRelatedResponse(res, 401, "Invalid Old Password");
 
-    if (new_password !== confirm_password) {
+    if (newPassword !== confirmPassword) {
       return queryErrorRelatedResponse(res, 404, "Confirm password does not match.");
     }
 
-    user.password = new_password;
+    user.password = newPassword;
 
     await user.save();
     successResponse(res, "Password changed successfully!");
