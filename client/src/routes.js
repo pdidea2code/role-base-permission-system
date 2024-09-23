@@ -1,18 +1,63 @@
 import Cookies from 'js-cookie'
 import React from 'react'
-import { getallRole, getRole } from './redux/api/api'
+import { getRole } from './redux/api/api'
 
+const getrole = async () => {
+  try {
+    const role = await getRole()
+    const data = role.data.info
+
+    Cookies.set('role', JSON.stringify(data.role))
+    Cookies.set('permission', JSON.stringify(data.permissions)) // Ensure permissions are stored as a JSON string
+  } catch (error) {
+    console.error('Error fetching role data:', error)
+  }
+}
+
+// Fetch role data if cookies don't exist
+setTimeout(() => {
+  getrole()
+}, 0)
+
+// Helper function to safely parse cookies
+const safeParse = (value, defaultValue) => {
+  try {
+    return JSON.parse(value)
+  } catch (e) {
+    console.error('Error parsing JSON:', e)
+    return defaultValue
+  }
+}
+
+// Helper function to clean and parse permissions
+export const cleanPermissions = (permissionsString) => {
+  try {
+    return JSON.parse(permissionsString.replace(/\\/g, ''))
+  } catch (e) {
+    console.error('Error parsing permissions:', e)
+    return []
+  }
+}
+
+const permissionsString = Cookies.get('permission') || '[]' // Default to empty array if cookie is not set
+const permissions = cleanPermissions(permissionsString)
+
+// console.log('User Details:', safeParse(Cookies.get('admin'), {}))
+// console.log('Cleaned Permissions:', permissions)
+
+// Lazy-loaded components
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
-const Permission = React.lazy(() => import('./views/pages/Permission'))
+const Role = React.lazy(() => import('./views/pages/role/Role'))
 const Userform = React.lazy(() => import('./views/dashboard/Userform'))
 const Admin = React.lazy(() => import('./views/dashboard/Admin'))
 const Changepassword = React.lazy(() => import('./views/pages/login/Changepassword'))
-const Role = React.lazy(() => import('./views/pages/Roleform'))
+const Roleform = React.lazy(() => import('./views/pages/role/Roleform'))
+const Permission = React.lazy(() => import('./views/pages/permisssion/Permission'))
+const Permissionform = React.lazy(() => import('./views/pages/permisssion/Permissionform'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
-// Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
 const Cards = React.lazy(() => import('./views/base/cards/Cards'))
@@ -28,12 +73,10 @@ const Spinners = React.lazy(() => import('./views/base/spinners/Spinners'))
 const Tables = React.lazy(() => import('./views/base/tables/Tables'))
 const Tooltips = React.lazy(() => import('./views/base/tooltips/Tooltips'))
 
-// Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
 const ButtonGroups = React.lazy(() => import('./views/buttons/button-groups/ButtonGroups'))
 const Dropdowns = React.lazy(() => import('./views/buttons/dropdowns/Dropdowns'))
 
-//Forms
 const ChecksRadios = React.lazy(() => import('./views/forms/checks-radios/ChecksRadios'))
 const FloatingLabels = React.lazy(() => import('./views/forms/floating-labels/FloatingLabels'))
 const FormControl = React.lazy(() => import('./views/forms/form-control/FormControl'))
@@ -45,42 +88,24 @@ const Validation = React.lazy(() => import('./views/forms/validation/Validation'
 
 const Charts = React.lazy(() => import('./views/charts/Charts'))
 
-// Icons
 const CoreUIIcons = React.lazy(() => import('./views/icons/coreui-icons/CoreUIIcons'))
 const Flags = React.lazy(() => import('./views/icons/flags/Flags'))
 const Brands = React.lazy(() => import('./views/icons/brands/Brands'))
 
-// Notifications
 const Alerts = React.lazy(() => import('./views/notifications/alerts/Alerts'))
 const Badges = React.lazy(() => import('./views/notifications/badges/Badges'))
 const Modals = React.lazy(() => import('./views/notifications/modals/Modals'))
 const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 
 const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
-// const getrole = async () => {
-//   try {
-//     const role = await getRole()
-//     const data = role.data.info
-//     const cookie = {
-//       _id: data._id,
-//       name: data.name,
-//       insert: data.insert,
-//       update: data.update,
-//       delete: data.delete,
-//     }
-//     return data
-//   } catch (error) {
-//     console.log(error)
-//   }
-// }
-const userdetail = JSON.parse(Cookies.get('admin'))
 
-const routes = [
+// Define getrole as a function that sets cookies if they don't exist
+
+// Default routes
+let routes = [
   { path: '/', exact: true, name: 'Home' },
-  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  { path: '/userform', name: 'User-Form', element: Userform },
-  { path: '/changepassword', name: 'Change-Password', element: Changepassword },
 
+  { path: '/changepassword', name: 'Change-Password', element: Changepassword },
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
@@ -125,15 +150,38 @@ const routes = [
   { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
 
-// const role = JSON.parse(Cookies.get('role'))
-// role.insert && routes.push({ path: '/userform', name: 'User-Form', element: Userform })
+const userdetail = safeParse(Cookies.get('admin'), {})
 
 if (userdetail.role === 'superadmin') {
-  routes.push(
-    { path: '/permission', name: 'Permission', element: Permission },
-    { path: '/admin', name: 'Admin', element: Admin },
-    { path: '/roleform', name: 'Role - Form', element: Role },
-  )
+  routes
+    .push
+    // { path: '/permissionform', name: 'Permission-Form', element: Permissionform },
+    // { path: '/role', name: 'Role', element: Role },
+    // { path: '/permission', name: 'Permission', element: Permission },
+    ()
+}
+
+if (permissions.includes('dashboard.view')) {
+  routes.push({ path: '/dashboard', name: 'Dashboard', element: Dashboard })
+}
+if (permissions.includes('user.view')) {
+  routes.push({ path: '/users', name: 'Users', element: Admin })
+}
+if (permissions.includes('user.edit') || permissions.includes('user.add')) {
+  routes.push({ path: '/userform', name: 'User-Form', element: Userform })
+}
+if (permissions.includes('role.view')) {
+  routes.push({ path: '/role', name: 'Role', element: Role })
+}
+if (permissions.includes('role.edit') || permissions.includes('role.add')) {
+  routes.push({ path: '/roleform', name: 'Role - Form', element: Roleform })
+}
+if (permissions.includes('permission.view')) {
+  console.log(permissions)
+  routes.push({ path: '/permission', name: 'Permission', element: Permission })
+}
+if (permissions.includes('permission.add')) {
+  routes.push({ path: '/permissionform', name: 'Permission-Form', element: Permissionform })
 }
 
 export default routes

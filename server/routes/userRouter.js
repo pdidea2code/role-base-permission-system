@@ -5,19 +5,20 @@ const verifyAppToken = require("../helper/verifyAppToken");
 const permissionManage = require("../helper/permissionManage");
 const { singleFileUpload } = require("../helper/fiileUpload");
 
-router.post("/getUser", verifyAppToken, getUser);
+router.post("/getUser", verifyAppToken, permissionManage("user.view"), getUser);
+router.post("/getDashbord", verifyAppToken, permissionManage("dashboard.view"), getUser);
 router.post(
   "/addUser",
   verifyAppToken,
-  permissionManage("insert"),
+  permissionManage("user.add"),
   singleFileUpload("public/profileimg", ["image/png", "image/jpeg", "image/jpg"], 1024 * 5024, "image"),
   addUser
 );
-router.post("/deleteUser", verifyAppToken, permissionManage("delete"), deleteUser);
+router.post("/deleteUser", verifyAppToken, permissionManage("user.delete"), deleteUser);
 router.post(
   "/updateUser",
   verifyAppToken,
-  permissionManage("update"),
+  permissionManage("user.edit"),
   singleFileUpload("public/profileimg", ["image/png", "image/jpeg", "image/jpg"], 1024 * 5024, "image"),
   updateUser
 );

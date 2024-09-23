@@ -1,7 +1,9 @@
+const Permission = require("../model/Permission");
 const Role = require("../model/Role");
+const RolehasePermission = require("../model/RolehasePermission");
 const { queryErrorRelatedResponse } = require("./sendResponse");
 
-const permissionManage = (params) => {
+const permissionManage = (requiredPermission) => {
   return async (req, res, next) => {
     try {
       const role = await Role.findById(req.user.role);
@@ -10,32 +12,26 @@ const permissionManage = (params) => {
         return queryErrorRelatedResponse(res, 400, "Role not found.");
       }
 
-      switch (params) {
-        case "update":
-          if (!role.update) {
-            return queryErrorRelatedResponse(res, 400, "Invalid Access: Update permission denied.");
-          }
-          break;
+      const permissions = await RolehasePermission.find({ role_id: role._id });
 
-        case "insert":
-          if (!role.insert) {
-            return queryErrorRelatedResponse(res, 400, "Invalid Access: Insert permission denied.");
-          }
-          break;
+      if (!permissions || permissions.length === 0) {
+        return queryErrorRelatedResponse(res, 400, "Permissions not found.");
+      }
 
-        case "delete":
-          if (!role.delete) {
-            return queryErrorRelatedResponse(res, 400, "Invalid Access: Delete permission denied.");
-          }
-          break;
+      const permission = await Promise.all(
+        permissions.map(async (data) => {
+          const permission = await Permission.findOne({ _id: data.permission_id });
+          return permission.name;
+        })
+      );
 
-        default:
-          return queryErrorRelatedResponse(res, 400, "Invalid Access: Unknown permission type.");
+      if (!permission.includes(requiredPermission)) {
+        return queryErrorRelatedResponse(res, 403, "Forbidden: You do not have the required permission.");
       }
 
       next();
     } catch (error) {
-      console.error(error); // Log the error for debugging purposes
+      console.error(error);
       queryErrorRelatedResponse(res, 500, "Internal Server Error.");
     }
   };

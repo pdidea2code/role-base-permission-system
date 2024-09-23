@@ -3,25 +3,28 @@ import MUIDataTable from 'mui-datatables'
 import { useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { deleteUser, getallRole, getRole, getUser } from 'src/redux/api/api'
+import { deleteUser, getallRole, getrole, getRole, getUser } from 'src/redux/api/api'
 import * as Icons from '@mui/icons-material'
 import swal from 'sweetalert'
 import Cookies from 'js-cookie'
 import { CListGroup, CSpinner } from '@coreui/react'
 import { Button, IconButton } from '@mui/material'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { cleanPermissions } from 'src/routes'
 
 const Admin = () => {
   const { state } = useLocation()
   const [dataTableData, setDataTabledata] = useState([])
   const [baseUrl, setBaseUrl] = useState('')
-  const [insert, setInsert] = useState(false)
-  const [update, setUpdate] = useState(false)
-  const [deletes, setDeletes] = useState(false)
+
   const [isLoading, setIsLoading] = useState(false)
   const [roles, setRoles] = useState([])
-  const [role, setRole] = useState('admin')
+  const [role, setRole] = useState('user')
   const navigate = useNavigate()
+  const [permission, setPermissions] = useState([])
+  const auth = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
 
   const getallrolle = async () => {
     try {
@@ -33,9 +36,18 @@ const Admin = () => {
   }
 
   useEffect(() => {
-    getallrolle()
     if (state) {
       setRole(state.role)
+    }
+    getallrolle()
+    getrole(dispatch)
+
+    if (auth.permission === null) {
+      const permissionsString = Cookies.get('permission') || '[]' // Default to empty array if cookie is not set
+      const permissions = cleanPermissions(permissionsString)
+      setPermissions(permissions)
+    } else {
+      setPermissions(auth.permission)
     }
   }, [])
 
@@ -64,9 +76,6 @@ const Admin = () => {
         const role = await getRole()
         const data = role.data.info
 
-        setInsert(data.insert)
-        setDeletes(data.delete)
-        setUpdate(data.update)
         setIsLoading(false)
       } catch (error) {
         console.log(error)
@@ -113,7 +122,7 @@ const Admin = () => {
     },
   ]
 
-  if (update || deletes) {
+  if (permission.includes('user.delete') || permission.includes('user.edit')) {
     columns.push({
       name: '_id',
       label: 'action',
@@ -124,7 +133,7 @@ const Admin = () => {
         customBodyRender: (value) => {
           return (
             <>
-              {update && (
+              {permission.includes('user.edit') && (
                 <Icons.EditRounded
                   className="editButton"
                   onClick={() => {
@@ -136,7 +145,7 @@ const Admin = () => {
                 ></Icons.EditRounded>
               )}
 
-              {deletes && (
+              {permission.includes('user.delete') && (
                 <Icons.DeleteRounded
                   className="deleteButton"
                   onClick={async () => {
@@ -190,7 +199,7 @@ const Admin = () => {
       ) : (
         <>
           <ToastContainer />
-          {insert && (
+          {permission.includes('user.add') && (
             <div className="right-text">
               <Button
                 variant="contained"
@@ -219,18 +228,19 @@ const Admin = () => {
             >
               Admin
             </Button> */}
-            {roles
-              /* .filter((data) => data.name !== 'superadmin') */
-              .map((data) => (
-                <Button
-                  onClick={() => setRole(data.name)}
-                  variant="contained"
-                  size="medium"
-                  className="AddButton me-2"
-                >
-                  {data.name}
-                </Button>
-              ))}
+            {auth.role === 'superadmin' &&
+              roles
+                /* .filter((data) => data.name !== 'superadmin') */
+                .map((data) => (
+                  <Button
+                    onClick={() => setRole(data.name)}
+                    variant="contained"
+                    size="medium"
+                    className="AddButton me-2"
+                  >
+                    {data.name}
+                  </Button>
+                ))}
           </div>
           <MUIDataTable title={role} data={dataTableData} columns={columns} options={options} />
         </>

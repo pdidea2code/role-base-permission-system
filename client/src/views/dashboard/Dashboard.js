@@ -1,15 +1,18 @@
-import { Icon } from '@mui/material'
 import MUIDataTable from 'mui-datatables'
 import { useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { deleteUser, getRole, getUser } from 'src/redux/api/api'
+import { deleteUser, getDashboard, getrole, getRole, getUser } from 'src/redux/api/api'
 import * as Icons from '@mui/icons-material'
 import swal from 'sweetalert'
 import Cookies from 'js-cookie'
-import { CListGroup, CSpinner } from '@coreui/react'
-import { Button, IconButton } from '@mui/material'
+import { CSpinner } from '@coreui/react'
+import { Button } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import authReducer from 'src/redux/reducer/authReducer'
+import { cleanPermissions } from 'src/routes'
+const userdetail = JSON.parse(Cookies.get('admin'))
 
 const Dashboard = () => {
   const [dataTableData, setDataTabledata] = useState([])
@@ -19,12 +22,15 @@ const Dashboard = () => {
   const [deletes, setDeletes] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const auth = useSelector((state) => state.auth)
+  const [permission, setPermissions] = useState()
 
   const getuser = async () => {
     try {
       setIsLoading(true)
-      const data = { role: 'user' }
-      const res = await getUser(data)
+      const data = { role: userdetail.role }
+      const res = await getDashboard(data)
       setDataTabledata(res.data.info)
       setBaseUrl(res.data.baseUrl)
       setIsLoading(false)
@@ -34,26 +40,26 @@ const Dashboard = () => {
       toast.error(error.response?.data?.message || 'An error occurred')
     }
   }
+  useEffect(() => {
+    getrole(dispatch)
+    // const permissionsString = Cookies.get('permission') || '[]' // Default to empty array if cookie is not set
+    // const permissions = cleanPermissions(permissionsString)
+
+    if (auth.permission === null) {
+      const permissionsString = Cookies.get('permission') || '[]' // Default to empty array if cookie is not set
+      const permissions = cleanPermissions(permissionsString)
+      setPermissions(permissions)
+    } else {
+      setPermissions(auth.permission)
+    }
+  }, [])
 
   useEffect(() => {
     getuser()
-    const getrole = async () => {
-      try {
-        setIsLoading(true)
-        const role = await getRole()
-        const data = role.data.info
 
-        setInsert(data.insert)
-        setDeletes(data.delete)
-        setUpdate(data.update)
-        setIsLoading(false)
-      } catch (error) {
-        console.log(error)
-        setIsLoading(false)
-        toast.error(error.response?.data?.message || 'Error occurred ')
-      }
+    if (!Cookies.get('role') || !Cookies.get('permission')) {
+      getrole()
     }
-    getrole()
   }, [])
 
   const columns = [
@@ -175,7 +181,12 @@ const Dashboard = () => {
               </Button>
             </div>
           )}
-          <MUIDataTable title={'user'} data={dataTableData} columns={columns} options={options} />
+          <MUIDataTable
+            title={userdetail.role}
+            data={dataTableData}
+            columns={columns}
+            options={options}
+          />
         </>
       )}
     </>

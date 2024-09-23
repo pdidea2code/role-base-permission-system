@@ -1,13 +1,18 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import {
+  ADD_PERMISSION,
   ADD_ROLE,
   ADD_USER,
   CHANGE_PASSWORD,
   CHANGE_PASSWORD_API,
   CHANGE_PERMISSION,
+  DELETE_PERMISSION,
+  DELETE_ROLE,
   DELETE_USER,
   GET_ALL_ROLE,
+  GET_DESHBORD,
+  GET_PERMISSION,
   GET_ROLE,
   GET_USER,
   // ADD_CATEGORY_API,
@@ -100,6 +105,8 @@ import {
   UPDATE_USER,
   VERIFY_OTP_API,
 } from '../../constant'
+import { useDispatch } from 'react-redux'
+import { PERMISSION } from '../actions/action'
 // export const MAIN_url = 'http://localhost:8002'
 
 axios.interceptors.response.use(
@@ -736,10 +743,35 @@ export const changepermission = (data) =>
   axios.post(MAIN_URL + CHANGE_PERMISSION, data, {
     headers: { Authorization: `Bearer ${Cookies.get('token')}` },
   })
+export const deleteRole = (data) =>
+  axios.post(MAIN_URL + DELETE_ROLE, data, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
 /* ------------------------------ End Role API ----------------------------- */
+
+/* ------------------------------ ALL Permission API ----------------------------- */
+
+export const getPermission = (data) =>
+  axios.get(MAIN_URL + GET_PERMISSION, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
+export const deletePermission = (id) =>
+  axios.delete(MAIN_URL + DELETE_PERMISSION + id, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
+export const addPermission = (data) =>
+  axios.post(MAIN_URL + ADD_PERMISSION, data, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
+/* ------------------------------ End Permission API ----------------------------- */
+
 /* ------------------------------ ALL User API ----------------------------- */
 export const getUser = (data) =>
   axios.post(MAIN_URL + GET_USER, data, {
+    headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+  })
+export const getDashboard = (data) =>
+  axios.post(MAIN_URL + GET_DESHBORD, data, {
     headers: { Authorization: `Bearer ${Cookies.get('token')}` },
   })
 export const addUser = (data) =>
@@ -755,3 +787,22 @@ export const updateUser = (data) =>
     headers: { Authorization: `Bearer ${Cookies.get('token')}` },
   })
 /* ------------------------------ End User API ----------------------------- */
+
+export const getrole = async (dispatch) => {
+  // const dispatch = useDispatch()
+  try {
+    const role = await getRole()
+    const data = role.data.info
+
+    Cookies.set('role', JSON.stringify(data.role))
+    Cookies.set('permission', JSON.stringify(data.permissions))
+
+    dispatch({
+      type: PERMISSION,
+      role: data.role,
+      permission: data.permissions,
+    })
+  } catch (error) {
+    console.log(error)
+  }
+}

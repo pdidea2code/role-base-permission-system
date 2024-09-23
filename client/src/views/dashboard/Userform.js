@@ -26,6 +26,7 @@ const Userform = () => {
   const [isUpdate, setIsUpdate] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [role, setRole] = useState('')
+  const [cuRole, setcuRole] = useState('')
   const navigate = useNavigate()
 
   const {
@@ -52,6 +53,7 @@ const Userform = () => {
           update: data.update,
           delete: data.delete,
         }
+        setcuRole(data.name)
         Cookies.set('role', JSON.stringify(cookie))
 
         setIsLoading(false)
@@ -62,17 +64,14 @@ const Userform = () => {
       }
     }
 
-    getrole()
+    // getrole()
   }, [])
 
   useEffect(() => {
     const role = JSON.parse(Cookies.get('role'))
 
-    if (!role.insert && !role.update) {
-      navigate('/')
-    }
     if (!state) {
-      navigate('/')
+      navigate('/users')
     }
   }, [])
 
@@ -118,7 +117,7 @@ const Userform = () => {
     isUpdate === ''
       ? addUser(formData)
           .then((res) => {
-            role === 'user' ? navigate('/') : navigate('/admin', { state: { role: role } })
+            role === cuRole ? navigate('/') : navigate('/users', { state: { role: role } })
           })
           .catch((error) => {
             console.log(error)
@@ -128,7 +127,7 @@ const Userform = () => {
           })
       : updateUser(formData)
           .then((res) => {
-            role === 'user' ? navigate('/') : navigate('/admin', { state: { role: role } })
+            role === cuRole ? navigate('/') : navigate('/users', { state: { role: role } })
           })
           .catch((error) => {
             console.log(error)

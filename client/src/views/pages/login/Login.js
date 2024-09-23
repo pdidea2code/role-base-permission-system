@@ -22,22 +22,20 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Cookies from 'js-cookie'
 import { useDispatch } from 'react-redux'
-import { LOGIN_SUCCESS } from 'src/redux/actions/action'
+import { LOGIN_SUCCESS, PERMISSION } from 'src/redux/actions/action'
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState()
+  const [error, setError] = useState('')
   const {
     register,
-    getValues,
-    setValue,
     handleSubmit,
-    control,
-    clearErrors,
     formState: { errors },
   } = useForm()
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [roles, setRole] = useState({})
+  const [permission, setPermissions] = useState([])
 
   const onSubmit = async (data) => {
     setError('')
@@ -52,7 +50,6 @@ const Login = () => {
         Cookies.set('token', res.data.info.token)
         Cookies.set('refreshToken', res.data.info.refreshToken)
 
-        console.log(res.data.info.user.role.name)
         const userObject = {
           name: res.data.info.user.name,
           id: res.data.info.user._id,
@@ -62,42 +59,49 @@ const Login = () => {
         }
 
         Cookies.set('admin', JSON.stringify(userObject))
-        const getrole = async () => {
-          try {
-            const role = await getRole()
-            const data = role.data.info
-            const cookie = {
-              _id: data._id,
-              name: data.name,
-              insert: data.insert,
-              update: data.update,
-              delete: data.delete,
-            }
-            Cookies.set('role', JSON.stringify(cookie))
-            return data
-          } catch (error) {
-            console.log(error)
-          }
-        }
-        getrole()
 
-        setIsLoading(false)
-        dispatch({
-          type: LOGIN_SUCCESS,
-          data: userObject,
-        })
-        // navigate('/dashboard')
+        // Fetch role and permissions
+        try {
+          const role = await getRole()
+          const data = role.data.info
+
+          setRole({ role: data.role, _id: data._id })
+          setPermissions(data.permissions)
+
+          Cookies.set('role', JSON.stringify(data.role))
+          Cookies.set('permission', JSON.stringify(data.permissions))
+
+          // Now dispatch after the role and permissions are set
+          dispatch({
+            type: LOGIN_SUCCESS,
+            data: userObject,
+          })
+
+          dispatch({
+            type: PERMISSION,
+            role: data.role,
+            permission: data.permissions,
+          })
+
+          setIsLoading(false)
+          navigate('/dashboard') // Un-comment this line when ready to navigate
+        } catch (error) {
+          console.log(error)
+          setIsLoading(false)
+          setError('Failed to fetch user role and permissions.')
+        }
       }
     } catch (err) {
-      if (err.response && (err.response.status === 401 || !err.response.data.success)) {
-        setError(err.response.data.message)
-        setIsLoading(false)
-      } else {
-        setError(err.response.data.message)
-        setIsLoading(false)
-      }
+      const errorMessage =
+        err.response && err.response.data && err.response.data.message
+          ? err.response.data.message
+          : 'An error occurred while logging in. Please try again.'
+
+      setError(errorMessage)
+      setIsLoading(false)
     }
   }
+
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
@@ -110,9 +114,7 @@ const Login = () => {
                   <CForm onSubmit={handleSubmit(onSubmit)}>
                     <h1>Login</h1>
                     <p className="text-medium-emphasis">Sign In to your account</p>
-                    <div in={error}>
-                      <p className="errors">{error ? error : ''}</p>
-                    </div>
+                    {error && <p className="errors">{error}</p>}
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
@@ -120,11 +122,10 @@ const Login = () => {
                       <CFormInput
                         type="email"
                         placeholder="Email"
-                        name="email"
                         {...register('email', { required: 'Email is required' })}
                         invalid={!!errors.email}
                       />
-                      <CFormFeedback invalid>Email is required</CFormFeedback>
+                      <CFormFeedback invalid>{errors.email?.message}</CFormFeedback>
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
@@ -132,18 +133,22 @@ const Login = () => {
                       </CInputGroupText>
                       <CFormInput
                         type="password"
-                        name="password"
                         placeholder="Password"
                         autoComplete="current-password"
-                        {...register('password', { required: 'password is required' })}
+                        {...register('password', { required: 'Password is required' })}
                         invalid={!!errors.password}
                       />
-                      <CFormFeedback invalid>Password is required</CFormFeedback>
+                      <CFormFeedback invalid>{errors.password?.message}</CFormFeedback>
                     </CInputGroup>
                     <CRow>
                       <CCol xs={6}>
-                        <CButton color="primary" type="submit" className="px-4">
-                          Login
+                        <CButton
+                          color="primary"
+                          type="submit"
+                          className="px-4"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? 'Loading...' : 'Login'}
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-right">

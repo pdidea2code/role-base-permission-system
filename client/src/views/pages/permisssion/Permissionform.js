@@ -18,36 +18,30 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { addRole } from 'src/redux/api/api'
-
-const Role = () => {
+import { addPermission } from 'src/redux/api/api'
+const Permissionfrom = () => {
   const {
     register,
-    getValues,
-    setValue,
     handleSubmit,
-    control,
-    clearErrors,
     formState: { errors },
+    setValue,
   } = useForm()
-
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-
   const onSubmit = async (data) => {
+    setIsLoading(true)
     try {
-      setIsLoading(true)
-      const res = await addRole(data)
+      const res = await addPermission(data)
       if (res.data.info) {
-        setIsLoading(false)
         navigate('/permission')
       }
     } catch (error) {
       console.log(error)
       setIsLoading(false)
-      toast.error(error.response?.data?.message || 'Error occurred ')
+      toast.error(error?.response?.data?.message || 'Error occurred')
     }
   }
+
   return (
     <>
       <div className="bg-light min-vh-100">
@@ -56,31 +50,18 @@ const Role = () => {
           <CRow>
             <CCol md={6}>
               <CCard>
-                <CCardHeader>Role Form</CCardHeader>
+                <CCardHeader>Permission Form</CCardHeader>
                 <CCardBody>
-                  <CForm className=" row g-3" onSubmit={handleSubmit(onSubmit)}>
+                  <CForm className="row g-3" onSubmit={handleSubmit(onSubmit)}>
                     <CCol xl={12} md={12}>
-                      <CFormLabel>Role Name</CFormLabel>
+                      <CFormLabel> Name</CFormLabel>
                       <CFormInput
                         type="text"
-                        placeholder="Role Name"
-                        {...register('name', { required: 'Role Name is required' })}
+                        placeholder="Permission Name"
+                        {...register('name', { required: 'Permission Name is required' })}
                         invalid={!!errors.name}
                       />
-
                       <CFormFeedback invalid> Name is required</CFormFeedback>
-                    </CCol>
-                    <CCol xl={12} md={12}>
-                      Permission
-                    </CCol>
-                    <CCol xl={3} md={12}>
-                      <CFormCheck label="Insert" {...register('insert')}></CFormCheck>
-                    </CCol>
-                    <CCol xl={3} md={12}>
-                      <CFormCheck label="Update" {...register('update')}></CFormCheck>
-                    </CCol>
-                    <CCol xl={3} md={12}>
-                      <CFormCheck label="Delete" {...register('delete')}></CFormCheck>
                     </CCol>
                     <CCol md={12} className="text-center submitButton">
                       {isLoading ? (
@@ -105,4 +86,4 @@ const Role = () => {
   )
 }
 
-export default Role
+export default Permissionfrom

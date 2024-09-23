@@ -15,19 +15,21 @@ import {
   cilStar,
   cilUser,
 } from '@coreui/icons'
-import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
+import { CNavItem } from '@coreui/react'
 import Cookies from 'js-cookie'
 
-const userdetail = JSON.parse(Cookies.get('admin'))
+// Retrieve user details and permissions from cookies
+const userdetail = JSON.parse(Cookies.get('admin') || '{}')
+const permissionsString = Cookies.get('permission') || '[]'
+
+// Safe parsing of permissions
+const permissions =
+  permissionsString.startsWith('[') && permissionsString.endsWith(']')
+    ? JSON.parse(permissionsString.replace(/\\/g, '')) // Clean and parse permissions
+    : []
 
 const _nav = [
-  {
-    component: CNavItem,
-    name: 'Dashboard',
-    to: '/dashboard',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-  },
-
+  // Example: Uncomment and modify this if you want to add a Docs link
   // {
   //   component: CNavItem,
   //   name: 'Docs',
@@ -35,21 +37,40 @@ const _nav = [
   //   icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
   // },
 ]
-if (userdetail.role === 'superadmin') {
-  _nav.push(
-    {
-      component: CNavItem,
-      name: 'Permission',
-      to: '/permission',
-      icon: <CIcon icon={cilActionRedo} customClassName="nav-icon" />,
-    },
-    {
-      component: CNavItem,
-      name: 'Admin',
-      to: '/admin',
-      icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
-    },
-  )
+
+if (permissions.includes('dashboard.view')) {
+  _nav.push({
+    component: CNavItem,
+    name: 'Dashboard',
+    to: '/dashboard',
+    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+  })
+}
+
+if (permissions.includes('user.view')) {
+  _nav.push({
+    component: CNavItem,
+    name: 'User',
+    to: '/users',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+  })
+}
+
+if (permissions.includes('role.view')) {
+  _nav.push({
+    component: CNavItem,
+    name: 'Role',
+    to: '/role',
+    icon: <CIcon icon={cilActionRedo} customClassName="nav-icon" />,
+  })
+}
+if (permissions.includes('permission.view')) {
+  _nav.push({
+    component: CNavItem,
+    name: 'Permission',
+    to: '/permission',
+    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+  })
 }
 
 export default _nav
